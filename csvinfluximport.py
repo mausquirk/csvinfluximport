@@ -17,7 +17,7 @@ def _sendLineOnUDP(msg, sock):
     Send a line to influxdb through udp
     """
     msg.decode('utf-8')
-    #sock.sendto(msg, (UDP_IP, UDP_PORT))
+    # sock.sendto(msg, (UDP_IP, UDP_PORT))
     print msg
 
 
@@ -28,27 +28,21 @@ def _dt2ts(dt):
 
     return calendar.timegm(dt.utctimetuple())
 
-UDP_PORT = 4444
-
-parser = argparse.ArgumentParser(description='Import CSV throug UDP Lineprotocol into influxdb')
+parser = argparse.ArgumentParser(
+    description='Import a CSV-file through UDP Lineprotocol into influxdb')
 
 parser.add_argument('filename', metavar='CSV-File.csv', type=str,
-                   help='The CSV-File to load data from')
-parser.add_argument('-u', "--udp-port", metavar='UPD-Port#', default=4444,
-                   action='store_const', const=UDP_PORT, type=int, 
-                   help='Use udp port')
+                    help='The CSV-File to load data from')
+parser.add_argument('-u', "--udpport", metavar='UPD-Port#', default='4444',
+                    type=int, dest='UDP_PORT', help='Use udp port')
 
 args = parser.parse_args()
 
-
-
 UDP_IP = "127.0.0.1"  # localhost
-UDP_PORT = args.u
+UDP_PORT = args.UDP_PORT
 Measurment = "default_measurment"
 Filename = args.filename
 TimestampKey = ""
-
-
 
 # Set local timezone
 local = pytz.timezone("Europe/Zurich")
@@ -69,10 +63,11 @@ with open(Filename, 'rb') as csvfile:
                 raise ValueError("Can't deterimine csv-key for timestamp")
 
         # create timestamp
-        local_dt = local.localize(datetime.strptime(row[TimestampKey], '%d.%m.%Y %H:%M'), is_dst=True)
-        #print("LocalDT ="+local_dt.__str__())
+        local_dt = local.localize(datetime.strptime(
+            row[TimestampKey],'%d.%m.%Y %H:%M'), is_dst=True)
+        # print("LocalDT ="+local_dt.__str__())
         utc_dt = local_dt.astimezone(pytz.utc)
-        #print ("UTC DT TS ="  + str(dt2ts(utc_dt)))
+        # print ("UTC DT TS ="  + str(dt2ts(utc_dt)))
         timestamp = str(int(_dt2ts(utc_dt) * 1e+9))
         # Compose Line
         msg = MeasurmentName
@@ -81,7 +76,8 @@ with open(Filename, 'rb') as csvfile:
             if key == TimestampKey:
                 continue
             if row[key] is "-" or not row[key]:
-                #raise ValueError("Non valid value on line #" + str(csv_file.line_num))
+                # raise ValueError("Non valid value on line #"
+                # + str(csv_file.line_num))
                 continue
             if firstField:
                 msg += " "
@@ -93,7 +89,7 @@ with open(Filename, 'rb') as csvfile:
             msg += row[key]
 
         # append timestamp
-        msg += " "+ row[TimestampKey]
+        msg += " " + row[TimestampKey]
         msg += '\n'
         print msg
         _sendLineOnUDP(msg, sock)
