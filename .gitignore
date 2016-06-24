@@ -66,3 +66,6 @@ target/
 
 #UserData
 *.csv
+
+# Rope
+.ropeproject/
