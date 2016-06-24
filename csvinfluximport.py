@@ -80,8 +80,8 @@ with open(Filename, 'rb') as csvfile:
             if key == TimestampKey:
                 continue # ignore timestamp-row
             if row[key] is "-" or not row[key]:
-                raise ValueError("Non valid value on line #"
-                 + str(csv_file.line_num))
+                #raise ValueError("Non valid value on line #"
+                # + str(csv_file.line_num))
                 continue
             if firstField:
                 msg += " "
@@ -89,9 +89,13 @@ with open(Filename, 'rb') as csvfile:
             else:
                 msg += ","
 
-            msg += key + "="
-            msg += row[key]
-
+            try:
+                msg += key + "="
+                msg += row[key]
+            except:
+                print "Unexpected error:", sys.exc_info()[0]
+                print "On line: #" + str(csv_file.line_num)
+                
         # append timestamp
         msg += " " + timestamp
         msg += '\n'
