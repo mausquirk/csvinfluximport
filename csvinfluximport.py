@@ -53,7 +53,8 @@ local = pytz.timezone("Europe/Zurich")
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 #Determine Masurment name from filename
-MeasurmentName = os.path.splitext(Filename)[0]
+MeasurmentName = os.path.basename(Filename)
+MeasurmentName = '.'.join(MeasurmentName.split('.')[:-1]) if '.' in MeasurmentName else MeasurmentName
 
 with open(Filename, 'rb') as csvfile:
     csv_file = csv.DictReader(csvfile, delimiter=';')
@@ -77,10 +78,10 @@ with open(Filename, 'rb') as csvfile:
 
         for key in row.keys():
             if key == TimestampKey:
-                continue
+                continue # ignore timestamp-row
             if row[key] is "-" or not row[key]:
-                # raise ValueError("Non valid value on line #"
-                # + str(csv_file.line_num))
+                raise ValueError("Non valid value on line #"
+                 + str(csv_file.line_num))
                 continue
             if firstField:
                 msg += " "
@@ -92,7 +93,7 @@ with open(Filename, 'rb') as csvfile:
             msg += row[key]
 
         # append timestamp
-        msg += " " + row[TimestampKey]
+        msg += " " + timestamp
         msg += '\n'
         print msg
         _sendLineOnUDP(msg, sock)
