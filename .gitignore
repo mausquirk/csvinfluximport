@@ -61,5 +61,8 @@ target/
 #Ipython Notebook
 .ipynb_checkpoints
 
-#Bakupgs
+#Bakups
 *~
+
+#UserData
+*.csv

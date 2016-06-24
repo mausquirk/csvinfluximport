@@ -17,9 +17,9 @@ def _sendLineOnUDP(msg, sock):
     Send a line to influxdb through udp
     """
     msg.decode('utf-8')
-    # sock.sendto(msg, (UDP_IP, UDP_PORT))
-    print msg
-
+    sock.sendto(msg, (UDP_IP, UDP_PORT))
+    #print msg
+    
 
 def _dt2ts(dt):
     """Converts a datetime object to UTC timestamp
@@ -33,38 +33,41 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument('filename', metavar='CSV-File.csv', type=str,
                     help='The CSV-File to load data from')
-parser.add_argument('-u', "--udpport", metavar='UPD-Port#', default='4444',
+parser.add_argument('-u', "--udpport", metavar='UPD-Port', default='4444',
                     type=int, dest='UDP_PORT', help='Use udp port')
+parser.add_argument('-o', '--ommitLine', dest='ommitLine', action='store_true')
+parser.add_argument('-t', '--timestampKey', metavar='TIMSTAMPKEY', dest='TimestampKey',
+                    help="Use %(metavar)s to identify timstamp key. Default='%(default)s'", default='timestamp')
 
 args = parser.parse_args()
 
-UDP_IP = "127.0.0.1"  # localhost
+UDP_IP = "127.0.0.1"  #localhost
 UDP_PORT = args.UDP_PORT
 Measurment = "default_measurment"
 Filename = args.filename
-TimestampKey = ""
+TimestampKey = args.TimestampKey
+OmmitLine2 = args.ommitLine
 
-# Set local timezone
+#Set local timezone
 local = pytz.timezone("Europe/Zurich")
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-# Determine Masurment name from filename
+#Determine Masurment name from filename
 MeasurmentName = os.path.splitext(Filename)[0]
 
 with open(Filename, 'rb') as csvfile:
     csv_file = csv.DictReader(csvfile, delimiter=';')
     for row in csv_file:
         firstField = True
-        # try to find timestamp row
-        if not TimestampKey:
-            if 'timestamp' in row:
-                TimestampKey = 'timestamp'
-            else:
-                raise ValueError("Can't deterimine csv-key for timestamp")
 
+        if OmmitLine2:
+            OmmitLine2=False
+            print 'Ommit Line'
+            continue
+              
         # create timestamp
         local_dt = local.localize(datetime.strptime(
-            row[TimestampKey],'%d.%m.%Y %H:%M'), is_dst=True)
+            row[TimestampKey],'%d.%m.%Y %H:%M:%S'), is_dst=True)
         # print("LocalDT ="+local_dt.__str__())
         utc_dt = local_dt.astimezone(pytz.utc)
         # print ("UTC DT TS ="  + str(dt2ts(utc_dt)))
