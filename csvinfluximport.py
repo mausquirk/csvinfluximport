@@ -11,6 +11,9 @@ import argparse
 
 import socket
 
+"""
+Silly and simple script to import the values of a csv file into influxdb over UDP using Influxdb's line protocol
+"""
 
 def _sendLineOnUDP(msg, sock):
     """
@@ -27,6 +30,15 @@ def _dt2ts(dt):
     """
 
     return calendar.timegm(dt.utctimetuple())
+
+def _try_parsing_date(text):
+    for fmt in ('%d.%m.%Y %H:%M:%S','%d.%m.%Y %H:%M'):
+        try:
+            return datetime.strptime(text, fmt)
+        except ValueError:
+            #print 'Nothing found for format: ' + fmt
+            pass
+    raise ValueError('no valid date format found for '+ text)
 
 parser = argparse.ArgumentParser(
     description='Import a CSV-file through UDP Lineprotocol into influxdb')
@@ -67,8 +79,7 @@ with open(Filename, 'rb') as csvfile:
             continue
               
         # create timestamp
-        local_dt = local.localize(datetime.strptime(
-            row[TimestampKey],'%d.%m.%Y %H:%M:%S'), is_dst=True)
+        local_dt = local.localize(_try_parsing_date(row[TimestampKey]), is_dst=True)
         # print("LocalDT ="+local_dt.__str__())
         utc_dt = local_dt.astimezone(pytz.utc)
         # print ("UTC DT TS ="  + str(dt2ts(utc_dt)))
