@@ -59,6 +59,8 @@ Measurment = "default_measurment"
 Filename = args.filename
 TimestampKey = args.TimestampKey
 OmmitLine2 = args.ommitLine
+IgnoreValues = ["-", "NAN"]
+
 
 #Set local timezone
 local = pytz.timezone("Europe/Zurich")
@@ -90,7 +92,7 @@ with open(Filename, 'rb') as csvfile:
         for key in row.keys():
             if key == TimestampKey:
                 continue # ignore timestamp-row
-            if row[key] is "-" or not row[key]:
+            if row[key] in IgnoreValues or not row[key]:
                 #raise ValueError("Non valid value on line #"
                 # + str(csv_file.line_num))
                 continue
