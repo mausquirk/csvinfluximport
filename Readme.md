@@ -28,12 +28,28 @@ The values are built as follow `CSV-ColumnHeader = CSV`
 
 ### timestamp
 The script tries to determine the value timestamp itself. It looks for the Column-header named `timestamp`;)
-Currently the csv-timestamp is considered to be a in `%d.%m.%Y %H:%M`(24hours)-format and in local Central European time.
+Currently the csv-timestamp is considered to be a in `%d.%m.%Y %H:%M`(24hours)-format and in local Central European time ("Europe/Zurich"-Timezone).
 The timestamp will be converted to UTC for influximport.
+
+## CSV Format
+Use `;` as separator. Any other CSV-Dialect is currently not supported.
+Example: Altdorf_Gartenmatt.csv
+```
+timestamp;O3_urADG
+23.05.2016 01:00;99.2
+23.05.2016 02:00;109.3
+23.05.2016 03:00;107.8
+23.05.2016 04:00;109
+23.05.2016 05:00;108.3
+23.05.2016 06:00;104.8
+```
+The first value line will be transfered into the following influxdb line protocol and send to the given UDP_Port
+```
+Altdorf_Gartenmatt O3_urADG=99.2 1464346800000000000
+```
+
 
 ## Future extensions / Todos
 - Specify the timestamp-column as option
 - Specify the local-time zone as option or skip the time conversion in case the timestamp is already UTC 
-
-
 
