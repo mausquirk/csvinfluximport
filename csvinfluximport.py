@@ -96,7 +96,7 @@ with open(Filename, 'rb') as csvfile:
         dt = _try_parsing_date(row[TimestampKey])
         # check if naive or not
         if dt.tzinfo is None or dt.tzinfo.utcoffset(dt) is None:
-            local_dt = local.localize(dt, is_dst=True)
+            local_dt = incoming_timezone.localize(dt, is_dst=True)
             # print("LocalDT ="+local_dt.__str__())
             dt = local_dt.astimezone(pytz.utc)
 #        print ("UTC ="  + str(dt))
