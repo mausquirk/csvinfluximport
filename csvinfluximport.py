@@ -52,6 +52,9 @@ parser.add_argument('-u', "--udpport", metavar='UPD-Port', default='4444',
 parser.add_argument('-o', '--ommitLine', dest='ommitLine', action='store_true')
 parser.add_argument('-t', '--timestampKey', metavar='TIMSTAMPKEY', dest='TimestampKey',
                     help="Use %(metavar)s to identify timstamp key. Default='%(default)s'", default='timestamp')
+parser.add_argument('-z', "--timeZone", metavar='+/- hours from GMT', default='0',
+                                        type=int, dest='timeZone', help='Set Timezone of the importet data to timezone %(metavar)s')
+
 
 args = parser.parse_args()
 
@@ -65,7 +68,12 @@ IgnoreValues = ["-", "NAN"]
 
 
 #Set incoming data's timezone
-incoming_timezone = pytz.timezone("Europe/Zurich")
+if args.timeZone:
+    zone_name = "Etc/GMT"+'{0:{1}}'.format(args.timeZone, '+' if args.timeZone else '-')
+    incoming_timezone = pytz.timezone(zone_name)
+else:
+    incoming_timezone = pytz.timezone("Europe/Zurich")
+
 # "Etc/GMT+1" "Europe/Zurich"
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
