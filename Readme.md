@@ -6,24 +6,35 @@ Silly and simple script to import the values of a csv file into influxdb over UD
 Best used with Python2.7 on Linux
  
 ```
-usage: csvinfluximport.py [-h] [-u UPD-Port#] CSV-File.csv
+usage: csvinfluximport.py [-h] [-u UPD-Port] [-o] [-t TIMSTAMPKEY]
+                          [-z +/- hours from GMT]
+			                            CSV-File.csv
 
 Import a CSV-file through UDP Lineprotocol into influxdb
+
 positional arguments:
   CSV-File.csv          The CSV-File to load data from
 
 optional arguments:
   -h, --help            show this help message and exit
-    -u UPD-Port#, --udpport UPD-Port#
+    -u UPD-Port, --udpport UPD-Port
                             Use udp port
-
+			      -o, --ommitLine
+			        -t TIMSTAMPKEY, --timestampKey TIMSTAMPKEY
+	                           Use TIMSTAMPKEY to identify timstamp key.
+          	                        Default='timestamp'
+    				-z +/- hours from GMT, --timeZone +/- hours from GMT
+	  			 Set Timezone of the importet data to timezone +/- hours from GMT
 ```
+															  
 ## Dependencies
 - Python Pytz for correcting time-zones
 
   install on Ubuntu: `sudo apt-get install python-tz`
   install with pip: `pip install pytz`
 
+- Pyton dateutil for extended date operation
+  install on Ubuntu: `sudo apt-get install python-dateutil`
 
 ## Mapping
 ###  Measurement Name 
