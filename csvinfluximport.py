@@ -3,6 +3,7 @@
 import json
 import csv
 from datetime import datetime, date
+from dateutil.parser import parse
 import pytz
 import time
 import os
@@ -32,13 +33,14 @@ def _dt2ts(dt):
     return calendar.timegm(dt.utctimetuple())
 
 def _try_parsing_date(text):
-    for fmt in ('%d.%m.%Y %H:%M:%S','%d.%m.%Y %H:%M'):
+    for fmt in ('%d.%m.%Y %H:%M:%S','%d.%m.%Y %H:%M', '%Y-%m-%dT%H:%M:%S%z'):
         try:
             return datetime.strptime(text, fmt)
         except ValueError:
             #print 'Nothing found for format: ' + fmt
             pass
-    raise ValueError('no valid date format found for '+ text)
+    return parse(text)
+    raise ValueError('No valid date format found for '+ text)
 
 parser = argparse.ArgumentParser(
     description='Import a CSV-file through UDP Lineprotocol into influxdb')
@@ -62,8 +64,10 @@ OmmitLine2 = args.ommitLine
 IgnoreValues = ["-", "NAN"]
 
 
-#Set local timezone
-local = pytz.timezone("Europe/Zurich")
+#Set incoming data's timezone
+incoming_timezone = pytz.timezone("Europe/Zurich")
+# "Etc/GMT+1" "Europe/Zurich"
+
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 #Determine Masurment name from filename
@@ -81,11 +85,14 @@ with open(Filename, 'rb') as csvfile:
             continue
               
         # create timestamp
-        local_dt = local.localize(_try_parsing_date(row[TimestampKey]), is_dst=True)
-        # print("LocalDT ="+local_dt.__str__())
-        utc_dt = local_dt.astimezone(pytz.utc)
-        # print ("UTC DT TS ="  + str(dt2ts(utc_dt)))
-        timestamp = str(int(_dt2ts(utc_dt) * 1e+9))
+        dt = _try_parsing_date(row[TimestampKey])
+        # check if naive or not
+        if dt.tzinfo is None or dt.tzinfo.utcoffset(dt) is None:
+            local_dt = local.localize(dt, is_dst=True)
+            # print("LocalDT ="+local_dt.__str__())
+            dt = local_dt.astimezone(pytz.utc)
+#        print ("UTC ="  + str(dt))
+        timestamp = str(int(_dt2ts(dt) * 1e+9))
         # Compose Line
         msg = MeasurmentName
 
