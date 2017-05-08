@@ -18,6 +18,12 @@ optional arguments:
                             Use udp port
 
 ```
+## Dependencies
+- Python Pytz for correcting time-zones
+
+  install on Ubuntu: `sudo apt-get install python-tz`
+  install with pip: `pip install pytz`
+
 
 ## Mapping
 ###  Measurement Name 
