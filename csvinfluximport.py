@@ -74,11 +74,9 @@ if args.timeZone:
 else:
     incoming_timezone = pytz.timezone("Europe/Zurich")
 
-# "Etc/GMT+1" "Europe/Zurich"
-
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-#Determine Masurment name from filename
+#Determine Measurment name from filename
 MeasurmentName = os.path.basename(Filename)
 MeasurmentName = '.'.join(MeasurmentName.split('.')[:-1]) if '.' in MeasurmentName else MeasurmentName
 
