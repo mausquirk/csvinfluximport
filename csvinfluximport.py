@@ -21,7 +21,7 @@ def _sendLineOnUDP(msg, sock):
     Send a line to influxdb through udp
     """
     msg.decode('utf-8')
-    sock.sendto(msg, (UDP_IP, UDP_PORT))
+    sock.sendto(msg, (UDP_HOST, UDP_PORT))
     #print msg
     
 
@@ -54,11 +54,12 @@ parser.add_argument('-t', '--timestampKey', metavar='TIMSTAMPKEY', dest='Timesta
                     help="Use %(metavar)s to identify timstamp key. Default='%(default)s'", default='timestamp')
 parser.add_argument('-z', "--timeZone", metavar='+/- hours from GMT', default='0',
                                         type=int, dest='timeZone', help='Set Timezone of the importet data to timezone %(metavar)s')
-
+parser.add_argument('-s', "--host", metavar='IP or hostname', default='172.0.0.1',
+                                                            dest='UDP_HOST', help="Set influxdb-server as %(metavar)s Default='%(default)s'")
 
 args = parser.parse_args()
 
-UDP_IP = "127.0.0.1"  #localhost
+UDP_HOST = args.UDP_HOST
 UDP_PORT = args.UDP_PORT
 Measurment = "default_measurment"
 Filename = args.filename
